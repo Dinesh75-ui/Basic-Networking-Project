@@ -4,7 +4,7 @@ import re
 LOG_FILE = "firewall_log.txt"
 
 # Define filtering rules
-BLOCKED_IPS = {"192.168.128.4","100.79.117.63"}  # Block specific IPs
+BLOCKED_IPS = {"192.168.1.0","100.79.117.63"}  # Block specific IPs
 BLOCKED_PORTS = {80}      # Block specific ports
 
 # Improved regex to handle timestamps, spacing, and multiple formats
