@@ -17,7 +17,7 @@ def should_block(packet_info):
     """Check if a packet should be blocked based on filtering rules."""
     match = PACKET_REGEX.search(packet_info)
     if not match:
-        print(f"[DEBUG] ❌ Failed to parse packet: {packet_info}")  # Debugging info
+        print(f"[DEBUG] Failed to parse packet: {packet_info}")  # Debugging info
         return False  # Ignore invalid logs
 
     src_ip, src_port, dst_ip, dst_port = match.groups()
@@ -39,7 +39,7 @@ def start_logger():
     server_socket.bind(("127.0.0.1", 9090))
     server_socket.listen(5)
 
-    print("🔥 Python Firewall Server Running... Waiting for C client.")
+    print("Python Firewall Server Running... Waiting for C client.")
     
     try:
         conn, addr = server_socket.accept()
@@ -57,11 +57,11 @@ def start_logger():
                     packet_info = data.decode("utf-8").strip()
                     
                     if should_block(packet_info):
-                        print(f"🚫 BLOCKED: {packet_info}")
+                        print(f"BLOCKED: {packet_info}")
                         log_file.write(f"BLOCKED: {packet_info}\n")
                         log_file.flush()
                     else:
-                        print(f"✅ ALLOWED: {packet_info}")
+                        print(f"ALLOWED: {packet_info}")
                         log_file.write(f"ALLOWED: {packet_info}\n")
                         log_file.flush()
 
