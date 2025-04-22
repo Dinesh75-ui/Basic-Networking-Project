@@ -42,7 +42,8 @@ Uses regex-based parsing and filtering based on BLOCKED_IPS and BLOCKED_PORTS.
 
 Logs whether packets are allowed or blocked — useful for auditing and tuning rules.
 
-⚙️ Requirements
+⚙️ Requirements:
+
 Windows
 WinPcap or Npcap
 
@@ -60,10 +61,7 @@ Ensure Python is installed and in your PATH.
 
 Watch logs and block activity in real time!
 
-📝 Example Log Output
-yaml
-Copy
-Edit
+📝 Example Log Output:
 ✅ ALLOWED: [2025-04-22 12:34:56] SRC: 192.168.1.100: 5353 -> DST: 192.168.1.1: 80
 🚫 BLOCKED: [2025-04-22 12:35:02] SRC: 192.168.128.4: 4444 -> DST: 10.0.0.2: 80
 🧠 Future Improvements
