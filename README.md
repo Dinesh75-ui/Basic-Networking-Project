@@ -31,9 +31,7 @@ Logs classified packets (ALLOWED / BLOCKED) to firewall_log.txt.
 
 🛡️ Blocking Logic
 C Firewall (Hard Block):
-Keeps track of repeated connections from the same IP.
-
-If an IP exceeds MAX_BLOCK_COUNT, it is blocked using a Windows firewall rule.
+Keeps track of connections from the IPs and Ports, it is blocked using a Windows firewall rule.
 
 Python Logger (Soft Filter):
 Analyzes packet metadata from the C client.
@@ -45,14 +43,14 @@ Logs whether packets are allowed or blocked — useful for auditing and tuning r
 ⚙️ Requirements:
 
 Windows
-WinPcap or Npcap
+Npcap (Need to be installed separately) 
 
 Visual Studio (or any C compiler for Windows)
 
 Python 3.x
 
 🚀 Getting Started
-Build and run the C project (firewall.c)
+Build and run the C project (firewall.c) with gcc and covert it to .exe file using the below command to include Npcap (if not included in environment path variables) 
 Choose the network interface when prompted.
 
 Python logger (firewall_manager.py) will launch automatically
