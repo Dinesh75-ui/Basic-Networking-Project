@@ -4,16 +4,17 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <pcap.h>
+//gcc firewall.c -o firewall_windows.exe -I C:\Npcap-SDK\Include -L C:\Npcap-SDK\Lib -lws2_32 -lwpcap -lPacket
+//Use this after installing pcap (If pacp is not added to path variables) 
 #include <signal.h>
 #include <time.h>
 #include <windows.h>  // For CreateProcess
 
 #pragma comment(lib, "ws2_32.lib")
 
-#define SERVER_IP "127.0.0.1"
+#define SERVER_IP "127.1.0.1"
 #define SERVER_PORT 9090
 #define PACKET_BUFFER_SIZE 65536
-#define MAX_BLOCK_COUNT 4  
 
 volatile int running = 1;
 pcap_t *handle = NULL;
@@ -49,13 +50,6 @@ struct tcphdr {
 };
 #pragma pack(pop)
 
-void block_ip_and_port(const char *ip, int port) {
-    char command[256];
-    snprintf(command, sizeof(command),
-             "netsh advfirewall firewall add rule name=\"Block %s:%d\" dir=in action=block remoteip=%s protocol=TCP remoteport=%d >nul 2>&1",
-             ip, port, ip, port);
-    system(command);
-}
 
 char *current_time() {
     static char buffer[30];
@@ -65,26 +59,6 @@ char *current_time() {
     timeinfo = localtime(&rawtime);
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
     return buffer;
-}
-
-int should_block(const char *ip, int port) {
-    for (int i = 0; i < block_index; i++) {
-        if (strcmp(blocked_ips[i], ip) == 0) {
-            block_count[i]++;
-            if (block_count[i] > MAX_BLOCK_COUNT) {
-                block_ip_and_port(ip, port);
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    if (block_index < 100) {
-        strcpy(blocked_ips[block_index], ip);
-        block_count[block_index] = 1;
-        block_index++;
-    }
-    return 0;
 }
 
 void extract_packet_info(const u_char *packet, int len) {
@@ -105,7 +79,6 @@ void extract_packet_info(const u_char *packet, int len) {
     int src_port = ntohs(tcp_header->source);
     int dst_port = ntohs(tcp_header->dest);
 
-    if (should_block(src_ip, src_port)) return;
 
     char packet_info[256];
     snprintf(packet_info, sizeof(packet_info),

@@ -14,8 +14,33 @@ PACKET_REGEX = re.compile(
     r"SRC: ([\d\.]+):\s*(\d+)\s*->\s*DST: ([\d\.]+):\s*(\d+)"
 )
 
-BLOCKED_IPS = {"192.168.128.4","100.79.117.63"}
-BLOCKED_PORTS = {80}
+BLOCKED_IPS = set()
+BLOCKED_PORTS = set()
+
+def load_blocklist(file_path="blocklist.txt"):
+    current_section = None
+    with open(file_path, "r") as file:
+        for line in file:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.endswith(":"):
+                current_section = line[:-1].upper()
+                continue
+
+            if current_section == "IPS":
+                BLOCKED_IPS.add(line)
+            elif current_section == "PORTS":
+                try:
+                    BLOCKED_PORTS.add(int(line))
+                except ValueError:
+                    print(f"[WARNING] Invalid port: {line}")
+
+load_blocklist()
+
+# Show the results
+print("Blocked IPs:", BLOCKED_IPS)
+print("Blocked Ports:", BLOCKED_PORTS)
 
 def block_in_windows(ip, port):
     key = f"{ip}:{port}"
@@ -31,11 +56,16 @@ def block_in_windows(ip, port):
         print(f"🛑 [Rule already exists for {key}] Skipping blocking.")
         return
 
-    cmd = (
+    cmd_in = (
         f'netsh advfirewall firewall add rule name="Blocked {key}" '
         f'dir=in action=block remoteip={ip} protocol=TCP remoteport={port}'
     )
-    os.system(cmd)
+    cmd_out = (
+        f'netsh advfirewall firewall add rule name="Blocked {key}" '
+        f'dir=out action=block remoteip={ip} protocol=TCP remoteport={port}'
+    )
+    os.system(cmd_in)
+    os.system(cmd_out)
     print(f"[!] Blocked IP {ip} on port {port} using Windows Firewall.")
 
 
@@ -62,7 +92,7 @@ def start_logger():
     retries = 5
     while retries > 0:
         try:
-            server_socket.bind(("127.0.0.1", 9090))
+            server_socket.bind(("127.1.0.1", 9090))
             server_socket.listen(1)
             print("🔥 Python Firewall Logger is running... Waiting for C client...")
             break
